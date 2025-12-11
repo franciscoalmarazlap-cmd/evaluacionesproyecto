@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PROYECTO PROGRAMACIÓN</title>
+<style>
+  :root{
+    --card:#fff;
+    --accent:#2e8b57;
+    --muted:#6b6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    margin:0;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+    background-image: url('FONDOEDI.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    user-select:none;
+    -webkit-user-select:none;
+    -ms-user-select:none;
+  }
+  header{
+    width:100%;
+    max-width:1100px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+  h1{color:#113311;margin:8px 0}
+  .muted{color:var(--muted)}
+  .levels{display:flex;gap:12px;margin:12px 0;flex-wrap:wrap;justify-content:center}
+  .level-card{
+    background:var(--card);
+    border-radius:12px;
+    padding:14px;
+    width:240px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    cursor:pointer;
+    text-align:center;
+    border-top:5px solid var(--accent);
+  }
+  .level-card:hover{transform:translateY(-5px);transition:all .12s;background:#eaf8ec}
+  #infoBoxes{display:flex;gap:10px;margin-bottom:12px;justify-content:center;flex-wrap:wrap}
+  .info{background:#fff;padding:10px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.08);width:260px}
+  .main-btn{padding:10px 14px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  .main-btn:hover{background:#256b45}
+  #problemArea,#codeArea,#examArea,#adminPanel{
+    width:100%;
+    max-width:980px;
+    background:#fff;
+    border-radius:10px;
+    padding:16px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.06);
+    margin:12px 0;
+    display:none;
+  }
+  .options{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+  .option-btn{flex:1;padding:10px;border-radius:8px;border:1px solid #2e8b57;background:#fff;cursor:pointer;text-align:left}
+  .option-btn:hover{background:#f0fff0}
+  textarea{width:100%;height:220px;font-family:monospace;font-size:14px;padding:10px;border-radius:8px;border:1px solid #ddd;box-sizing:border-box}
+  .hint{margin-top:8px;color:#333;background:#f8f9fb;padding:8px;border-radius:6px;border:1px solid #eee;white-space:pre-wrap}
+  footer{
+    margin-top:auto;color:#1b3b1a;font-size:14px;text-align:center;font-weight:bold;
+    background:rgba(255,255,255,0.85);width:100%;padding:12px 0;border-top:3px solid #2e8b57;
+  }
+  .page-image {
+    position: fixed;
+    bottom: 0px;      
+    right: 15px;
+    width: 220px;
+    height: auto;
+    z-index: 10;
+    opacity: 0.95;
+  }
+  .mastesh-cloud {
+    position: fixed;
+    bottom: 180px; 
+    right: 190px;  
+    background: linear-gradient(180deg,#ffffff,#f7fff7);
+    border-radius: 20px;
+    padding: 12px 16px;
+    max-width: 360px;
+    color: #163a1f;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    z-index: 20;
+    line-height: 1.2;
+    text-align: left;
+    border: 1px solid rgba(46,139,87,0.12);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .mastesh-cloud::after {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    right: 70px;
+    border-width: 12px;
+    border-style: solid;
+    border-color: #fff transparent transparent transparent;
+  }
+  .hidden {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease;
+  }
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border:1px solid #e6e6e6;text-align:left;font-size:14px}
+  .modal-bg{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:999}
+  .modal{background:#fff;padding:18px;border-radius:8px;min-width:320px;max-width:90%}
+  input,textarea{user-select:text;-webkit-user-select:text;-ms-user-select:text}
+  @media(max-width:900px){
+    .page-image{display:none}
+    .level-card{width:100%}
+    .mastesh-cloud{display:none}
+    #problemArea,#codeArea,#examArea,#adminPanel{padding:12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>PROYECTO DE PROGRAMACION</h1>
+  </div>
+  <div id="userDisplay" style="margin-left:8px;color:#000700;font-weight:600"></div>
+</header>
+
+<div id="loginScreen" style="background:white;padding:20px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.15);width:350px;margin-top:40px;text-align:center">
+  <h2>Iniciar sesión</h2>
+  <label>Nombre completo</label>
+  <input id="loginName" style="width:100%;padding:8px;margin-top:6px">
+  <label style="margin-top:10px;display:block">Matrícula</label>
+  <input id="loginMat" style="width:100%;padding:8px;margin-top:6px">
+  <label style="margin-top:10px;display:block">Grupo</label>
+  <input id="loginGroup" style="width:100%;padding:8px;margin-top:6px">
+  <button class="main-btn" style="margin-top:15px;width:100%" onclick="entrarSistema()">Entrar</button>
+  <div id="loginError" style="color:red;margin-top:10px;display:none;font-weight:bold"></div>
+</div>
+
+<div id="masteshCloud" class="mastesh-cloud" role="note" aria-live="polite">
+  Hola estudiante, listo para reforzar los conocimientos de programación en lenguaje Python, selecciona tu nivel.
+</div>
+
+<div id="infoBoxes" style="display:none">
+  <div class="info"><strong>Nivel Básico</strong><div class="small">Uso de input, print, variables y operaciones simples.</div></div>
+  <div class="info"><strong>Nivel Medio</strong><div class="small">Bucles, condicionales, operaciones matemáticas y manejo de listas simples.</div></div>
+  <div class="info"><strong>Nivel Medio-Alto</strong><div class="small">Listas, comprensiones, condicionales, manipulación de datos.</div></div>
+</div>
+
+<div class="levels" id="levelCards" style="display:none">
+  <div class="level-card" onclick="seleccionarNivel('bajo')"><h3>Nivel Básico</h3><div class="small">5 ejercicios</div></div>
+  <div class="level-card" onclick="seleccionarNivel('medio')"><h3>Nivel Medio</h3><div class="small">5 ejercicios</div></div>
+  <div class="level-card" onclick="seleccionarNivel('medioalto')"><h3>Nivel Medio-Alto</h3><div class="small">5 ejercicios</div></div>
+</div>
+
+<div id="problemArea">
+  <h2 id="problemTitle"></h2>
+  <div id="questionBox" class="question"></div>
+  <div class="options" id="optionsBox"></div>
+  <div id="feedback" class="hint"></div>
+</div>
+
+<div id="codeArea">
+  <h3>Escribe tu código Python</h3>
+  <div class="small">Escribe tu solución y pulsa <strong>Enviar</strong>. Tus respuestas se registrarán para revisión.</div>
+  <textarea id="userCode" placeholder="Escribe un programa en Python para este problema"></textarea>
+  <div style="margin-top:10px;">
+    <button class="main-btn" id="verifyBtn" onclick="verificarCodigo()" disabled>Enviar</button>
+  </div>
+  <div id="feedbackCode" class="hint"></div>
+</div>
+
+<div id="examArea">
+</div>
+
+<div id="adminPanel">
+  <h3>Panel Admin - Resultados guardados</h3>
+  <div style="margin-bottom:10px;">
+    <button class="main-btn" onclick="exportarCSV()">Exportar CSV</button>
+    <button class="main-btn" onclick="limpiarResultados()">Limpiar todo</button>
+    <button class="main-btn" onclick="cerrarAdmin()">Cerrar</button>
+  </div>
+  <div id="resultsTableWrap"></div>
+</div>
+
+<img src="mastesh.png" alt="Imagen TESH" class="page-image">
+
+<footer>© FRANCISCO ALMARAZ OCELO - TESH - PROYECTO PROGRAMACIÓN</footer>
+
+<div id="modal" class="modal-bg">
+  <div class="modal">
+    <h3>Login Administrador</h3>
+    <div style="margin-bottom:8px;"><label>Usuario:</label><input id="adminUser" style="width:100%;padding:8px;margin-top:4px"></div>
+    <div style="margin-bottom:8px;"><label>Contraseña:</label><input id="adminPass" type="password" style="width:100%;padding:8px;margin-top:4px"></div>
+    <div style="text-align:right;">
+      <button class="main-btn" onclick="loginAdmin()">Entrar</button>
+      <button class="main-btn" onclick="cerrarModal()">Cancelar</button>
+    </div>
+    <div id="loginMsg" class="hint" style="display:none;margin-top:8px"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+<script>
+const PROBLEMS = {
+  bajo: [
+    {
+      texto: "Saludar al usuario",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace la línea: Definir nombre Como Caracter?",
+          opciones: [
+            "Declara una variable de texto para guardar el nombre.",
+            "Imprime el nombre en la pantalla.",
+            "Finaliza el algoritmo.",
+            "Declara una variable numérica."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir \"Ingresa tu nombre:\"?",
+          opciones: [
+            "Captura lo que escribe el usuario.",
+            "Muestra un mensaje pidiendo el nombre.",
+            "Borra la variable nombre.",
+            "Guarda el nombre automáticamente."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la línea: Leer nombre?",
+          opciones: [
+            "Imprime el valor de nombre.",
+            "Convierte el nombre a mayúsculas.",
+            "Captura lo que escribe el usuario y lo guarda en nombre.",
+            "Termina el programa."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir \"Hola, \", nombre, \"!\"?",
+          opciones: [
+            "Pide que se vuelva a escribir el nombre.",
+            "Muestra un saludo usando el nombre guardado.",
+            "Guarda el saludo en un archivo.",
+            "Borra el valor de nombre."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué tipo de dato es más adecuado para la variable nombre?",
+          opciones: [
+            "Entero.",
+            "Real.",
+            "Caracter (cadena de texto).",
+            "Booleano."
+          ],
+          correcta: 2
+        }
+      ]
+    },
+    {
+      texto: "Edad del usuario",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace la línea: Definir edad Como Entero?",
+          opciones: [
+            "Declara una variable de texto.",
+            "Declara una variable numérica sin decimales.",
+            "Fin del programa.",
+            "Imprime la edad."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir \"Ingresa tu edad:\"?",
+          opciones: [
+            "Pide al usuario que ingrese su edad.",
+            "Convierte la edad a entero.",
+            "Reinicia la variable edad.",
+            "Muestra la edad final."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Leer edad?",
+          opciones: [
+            "Imprime la edad.",
+            "Captura lo que ingresa el usuario y lo guarda en edad.",
+            "Convierte edad a texto.",
+            "Termina el programa."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir \"Tienes \", edad, \" años\"?",
+          opciones: [
+            "Incrementa la edad en 1.",
+            "Calcula la edad al cuadrado.",
+            "Muestra la edad acompañada de texto.",
+            "Borra la edad."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué dato se espera que ingrese el usuario en edad?",
+          opciones: [
+            "Un número entero.",
+            "Un número real.",
+            "Una cadena.",
+            "Un valor lógico."
+          ],
+          correcta: 0
+        }
+      ]
+    },
+    {
+      texto: "Cuadrado de un número",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace la línea: Definir num Como Entero?",
+          opciones: [
+            "Declara una variable para guardar un número entero.",
+            "Declara una variable de texto.",
+            "Finaliza el algoritmo.",
+            "Imprime un mensaje."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir \"Ingresa un número:\"?",
+          opciones: [
+            "Pide al usuario un número.",
+            "Calcula el cuadrado.",
+            "Lee el número.",
+            "Cierra el programa."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Leer num?",
+          opciones: [
+            "Imprime num.",
+            "Lee el valor ingresado y lo guarda en num.",
+            "Eleva num al cuadrado.",
+            "Convierte num a cadena."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la línea: num = num * num?",
+          opciones: [
+            "Calcula el cuadrado de num.",
+            "Suma num + num.",
+            "Divide num entre 2.",
+            "Resta 1 a num."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea final del algoritmo?",
+          opciones: [
+            "Muestra el valor de num ya elevado al cuadrado.",
+            "Pide otro número.",
+            "Reinicia el programa.",
+            "Convierte num a texto."
+          ],
+          correcta: 0
+        }
+      ]
+    },
+    {
+      texto: "Suma de dos números",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace la línea: Definir a, b Como Entero?",
+          opciones: [
+            "Declara dos variables numéricas enteras.",
+            "Declara dos variables de texto.",
+            "Imprime a y b.",
+            "Finaliza el programa."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Leer a?",
+          opciones: [
+            "Imprime el valor de a.",
+            "Lee y guarda el primer número.",
+            "Calcula la suma.",
+            "Reinicia a."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la línea: Leer b?",
+          opciones: [
+            "Lee y guarda el segundo número.",
+            "Imprime b.",
+            "Resta b.",
+            "Cierra el algoritmo."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir a + b?",
+          opciones: [
+            "Muestra la suma de a y b.",
+            "Muestra la resta.",
+            "Muestra el producto.",
+            "Muestra el cociente."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué tipo de datos se espera para a y b?",
+          opciones: [
+            "Texto.",
+            "Booleano.",
+            "Entero.",
+            "Lista."
+          ],
+          correcta: 2
+        }
+      ]
+    },
+    {
+      texto: "Color favorito",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace la línea: Definir color Como Caracter?",
+          opciones: [
+            "Declara una variable de texto.",
+            "Declara una variable numérica.",
+            "Imprime color.",
+            "Finaliza el algoritmo."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir \"Ingresa tu color:\"?",
+          opciones: [
+            "Pide al usuario que ingrese su color.",
+            "Lee el color.",
+            "Borra la variable color.",
+            "Convierte el color a mayúsculas."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué hace la línea: Leer color?",
+          opciones: [
+            "Imprime color.",
+            "Captura la entrada del usuario y la guarda.",
+            "Convierte color a número.",
+            "Cierra el programa."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la línea: Escribir \"Tu color favorito es\", color?",
+          opciones: [
+            "Pide de nuevo el color.",
+            "Muestra el color guardado.",
+            "Elimina la variable.",
+            "Convierte color a número."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué tipo de dato es más adecuado para color?",
+          opciones: [
+            "Entero.",
+            "Real.",
+            "Cadena de texto.",
+            "Booleano."
+          ],
+          correcta: 2
+        }
+      ]
+    }
+  ],
+  medio: [
+    {
+      texto: "Inversión anual (mostrar capital cada año)",
+      preguntas: [
+        {
+          enunciado: "¿Qué representa la variable cantidad?",
+          opciones: [
+            "El número de años.",
+            "El interés anual.",
+            "El capital a invertir.",
+            "El resultado final."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué representa la variable interes?",
+          opciones: [
+            "El capital inicial.",
+            "El porcentaje anual aplicado al capital.",
+            "El número de meses.",
+            "El número de años."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace el bucle for en este ejercicio?",
+          opciones: [
+            "Ejecuta el cálculo una vez.",
+            "Repite el cálculo para cada año.",
+            "Convierte el interés en entero.",
+            "Finaliza el programa."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué operación se realiza dentro del bucle?",
+          opciones: [
+            "Se resta el interés.",
+            "Se multiplica la cantidad por cero.",
+            "Se suma a cantidad el interés generado.",
+            "Se divide la cantidad entre 2."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué muestra la instrucción print dentro del bucle?",
+          opciones: [
+            "El capital inicial.",
+            "Solo el interés generado.",
+            "El número de años sin capital.",
+            "El capital actualizado en cada año."
+          ],
+          correcta: 3
+        }
+      ]
+    },
+    {
+      texto: "Celsius a Fahrenheit",
+      preguntas: [
+        {
+          enunciado: "¿Qué tipo de dato se usa para la variable c?",
+          opciones: [
+            "Entero.",
+            "Cadena.",
+            "Real o flotante.",
+            "Booleano."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué fórmula se usa para convertir Celsius a Fahrenheit?",
+          opciones: [
+            "f = (c - 32) * 5/9",
+            "f = (c * 9/5) + 32",
+            "f = c + 273",
+            "f = c / 2"
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la función float() aplicada a la entrada?",
+          opciones: [
+            "Convierte el texto introducido a número con decimales.",
+            "Convierte el número a texto.",
+            "Elimina los decimales.",
+            "Reinicia el valor."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué muestra el print final?",
+          opciones: [
+            "La temperatura en Celsius.",
+            "La temperatura en Kelvin.",
+            "La temperatura en Fahrenheit.",
+            "El tipo de dato de c."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "Si c = 0, ¿qué valor toma f?",
+          opciones: [
+            "0",
+            "32",
+            "100",
+            "273"
+          ],
+          correcta: 1
+        }
+      ]
+    },
+    {
+      texto: "Área de un triángulo",
+      preguntas: [
+        {
+          enunciado: "¿Qué variables intervienen en el cálculo del área?",
+          opciones: [
+            "base y altura.",
+            "base y radio.",
+            "radio y altura.",
+            "diámetro y altura."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué fórmula se utiliza para calcular el área?",
+          opciones: [
+            "base * altura",
+            "(base * altura) / 2",
+            "base + altura",
+            "(base + altura) / 2"
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué tipo de dato se usa para base y altura?",
+          opciones: [
+            "Entero.",
+            "Texto.",
+            "Booleano.",
+            "Real o flotante."
+          ],
+          correcta: 3
+        },
+        {
+          enunciado: "¿Qué hace el print final?",
+          opciones: [
+            "Muestra el perímetro.",
+            "Muestra el área del triángulo.",
+            "Muestra la base.",
+            "Muestra la altura."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "Si base = 4 y altura = 5, ¿qué área se obtiene?",
+          opciones: [
+            "9",
+            "10",
+            "20",
+            "2"
+          ],
+          correcta: 1
+        }
+      ]
+    },
+    {
+      texto: "Número par o impar",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace la expresión num % 2?",
+          opciones: [
+            "Divide num entre 2.",
+            "Obtiene el residuo de dividir num entre 2.",
+            "Multiplica num por 2.",
+            "Resta 2 a num."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Cuándo se considera que un número es par?",
+          opciones: [
+            "Cuando num % 2 da 1.",
+            "Cuando num % 2 da 0.",
+            "Cuando num es menor que 2.",
+            "Cuando num es negativo."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué estructura se usa para decidir entre par o impar?",
+          opciones: [
+            "for",
+            "while",
+            "if - else",
+            "try - except"
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué hace la línea if num % 2 == 0?",
+          opciones: [
+            "Comprueba si num es par.",
+            "Comprueba si num es impar.",
+            "Convierte num a cero.",
+            "Convierte num a entero."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "Si num = 6, ¿qué mensaje se muestra?",
+          opciones: [
+            "Es impar",
+            "Es par",
+            "Error",
+            "Nada"
+          ],
+          correcta: 1
+        }
+      ]
+    },
+    {
+      texto: "Factorial",
+      preguntas: [
+        {
+          enunciado: "¿Qué valor inicial suele tomar la variable fact para calcular factorial?",
+          opciones: [
+            "0",
+            "1",
+            "num",
+            "2"
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace el bucle for i in range(1, num+1)?",
+          opciones: [
+            "Suma los números del 1 a num.",
+            "Multiplica los números del 1 a num.",
+            "Divide los números del 1 a num.",
+            "Resta los números del 1 a num."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace la instrucción fact *= i?",
+          opciones: [
+            "fact = fact + i",
+            "fact = fact * i",
+            "fact = fact - i",
+            "fact = fact / i"
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué es el factorial de un número?",
+          opciones: [
+            "La suma de todos los números hasta ese número.",
+            "El producto de todos los enteros positivos hasta ese número.",
+            "La mitad del número.",
+            "El cuadrado del número."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "Si num = 5, ¿qué valor debería mostrar el programa?",
+          opciones: [
+            "10",
+            "25",
+            "5",
+            "120"
+          ],
+          correcta: 3
+        }
+      ]
+    }
+  ],
+  medioalto: [
+    {
+      texto: "Asignaturas pendientes",
+      preguntas: [
+        {
+          enunciado: "¿Qué almacena la lista asignaturas?",
+          opciones: [
+            "Las notas de cada materia.",
+            "Los nombres de las materias.",
+            "Los promedios finales.",
+            "Los nombres de los alumnos."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace notas.append(n)?",
+          opciones: [
+            "Elimina una nota.",
+            "Ordena las notas.",
+            "Agrega la nota leída a la lista.",
+            "Convierte la nota a texto."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué condición se usa para detectar materias reprobadas?",
+          opciones: [
+            "notas[i] > 6",
+            "notas[i] == 6",
+            "notas[i] < 6",
+            "notas[i] >= 6"
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué almacena la lista pendientes?",
+          opciones: [
+            "Las materias aprobadas.",
+            "Las materias reprobadas.",
+            "Las notas ordenadas.",
+            "Los nombres de los alumnos."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué muestra el print final?",
+          opciones: [
+            "Las notas aprobadas.",
+            "Las materias a repetir.",
+            "El promedio general.",
+            "La mejor nota."
+          ],
+          correcta: 1
+        }
+      ]
+    },
+    {
+      texto: "Lista de números pares",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace la expresión [int(x) for x in input().split()]?",
+          opciones: [
+            "Lee un solo número.",
+            "Convierte una lista de textos a enteros.",
+            "Convierte una lista de enteros a texto.",
+            "Ordena la lista."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué condición se usa para que un número pertenezca a pares?",
+          opciones: [
+            "n % 2 != 0",
+            "n % 2 == 0",
+            "n > 2",
+            "n < 0"
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué tipo de estructura es pares = [n for n in numeros if n % 2 == 0]?",
+          opciones: [
+            "Comprensión de listas.",
+            "Bucle while.",
+            "Función recursiva.",
+            "Condicional simple."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué datos contiene la lista pares?",
+          opciones: [
+            "Solo números impares.",
+            "Solo números pares.",
+            "Notas reprobadas.",
+            "Palabras."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "Si la entrada es 1 2 3 4 5 6, ¿qué muestra el programa?",
+          opciones: [
+            "[1, 3, 5]",
+            "[2, 4, 6]",
+            "[1, 2, 3, 4, 5, 6]",
+            "[]"
+          ],
+          correcta: 1
+        }
+      ]
+    },
+    {
+      texto: "Mayores de edad",
+      preguntas: [
+        {
+          enunciado: "¿Qué representa la lista nombres?",
+          opciones: [
+            "Edades de personas.",
+            "Nombres asociados a las edades.",
+            "Notas de alumnos.",
+            "Materias reprobadas."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace edades = [int(x) for x in input().split()]?",
+          opciones: [
+            "Convierte las edades ingresadas en una lista de enteros.",
+            "Ordena las edades.",
+            "Imprime las edades.",
+            "Convierte las edades a texto."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué condición se usa para seleccionar mayores?",
+          opciones: [
+            "edades[i] <= 18",
+            "edades[i] < 18",
+            "edades[i] >= 18",
+            "edades[i] == 18"
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué contiene la lista mayores?",
+          opciones: [
+            "Las edades mayores de 18.",
+            "Los nombres cuyas edades son mayores o iguales a 18.",
+            "Las notas reprobadas.",
+            "Los nombres menores de edad."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "Si las edades son 16 20 18 17, ¿qué nombres se muestran como mayores?",
+          opciones: [
+            "Ana y Marta",
+            "Luis y Carlos",
+            "Ana y Carlos",
+            "Solo Carlos"
+          ],
+          correcta: 1
+        }
+      ]
+    },
+    {
+      texto: "Palabras que empiezan con vocal",
+      preguntas: [
+        {
+          enunciado: "¿Qué hace palabras = input().split()?",
+          opciones: [
+            "Une palabras.",
+            "Separa el texto en palabras individuales.",
+            "Convierte a mayúsculas.",
+            "Ordena alfabéticamente."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué representa la lista vocales = [\"a\",\"e\",\"i\",\"o\",\"u\"]?",
+          opciones: [
+            "Vocales mayúsculas.",
+            "Consonantes.",
+            "Vocales minúsculas.",
+            "Números."
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué hace p[0].lower()?",
+          opciones: [
+            "Toma la última letra de la palabra.",
+            "Convierte la primera letra a minúscula.",
+            "Convierte toda la palabra a mayúsculas.",
+            "Elimina la primera letra."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué condición se usa para seleccionar palabras?",
+          opciones: [
+            "p[0].lower() not in vocales",
+            "p[0].lower() in vocales",
+            "len(p) > 3",
+            "p.endswith('a')"
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "Si la entrada es: amarillo azul Casa iguana perro, ¿qué palabras se seleccionan?",
+          opciones: [
+            "amarillo, azul, iguana",
+            "Casa, perro",
+            "solo perro",
+            "amarillo, perro"
+          ],
+          correcta: 0
+        }
+      ]
+    },
+    {
+      texto: "Productos con precio >= 50",
+      preguntas: [
+        {
+          enunciado: "¿Qué contiene la lista productos?",
+          opciones: [
+            "Precios de cada producto.",
+            "Nombres de los productos.",
+            "Cantidades en inventario.",
+            "Descuentos."
+          ],
+          correcta: 1
+        },
+        {
+          enunciado: "¿Qué hace precios = [float(x) for x in input().split()]?",
+          opciones: [
+            "Convierte la entrada en lista de precios numéricos.",
+            "Imprime los precios.",
+            "Convierte precios a texto.",
+            "Ordena los productos."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "¿Qué condición se usa para filtrar productos en resultado?",
+          opciones: [
+            "precios[i] <= 50",
+            "precios[i] < 50",
+            "precios[i] >= 50",
+            "precios[i] == 50"
+          ],
+          correcta: 2
+        },
+        {
+          enunciado: "¿Qué almacena la lista resultado?",
+          opciones: [
+            "Los nombres de productos con precio mayor o igual a 50.",
+            "Los precios de todos los productos.",
+            "Solo los precios menores de 50.",
+            "Los productos agotados."
+          ],
+          correcta: 0
+        },
+        {
+          enunciado: "Si los precios son 30 60 75, ¿qué productos se muestran?",
+          opciones: [
+            "Producto1 y Producto2",
+            "Producto2 y Producto3",
+            "Solo Producto1",
+            "Ninguno"
+          ],
+          correcta: 1
+        }
+      ]
+    }
+  ]
+};
+
+let nivelActual = null;
+let problemaActual = null;
+let qIndex = 0;
+let pyodide = null;
+let pyReady = false;
+let currentUserName = null;
+let currentUserCode = "";
+let currentMatricula = null;
+let currentGrupo = null;
+let quizResults = [];
+let intentoEnCurso = false;
+let intentoEnviado = false;
+
+const USERS_KEY = "ps_eint_python_usuarios_v1";
+const STORAGE_KEY = "ps_eint_python_resultados_v1";
+
+function cargarUsuarios(){
+  try{ return JSON.parse(localStorage.getItem(USERS_KEY)) || [] }catch(e){ return [] }
+}
+function guardarUsuario(usuario){
+  const lista = cargarUsuarios();
+  lista.push(usuario);
+  localStorage.setItem(USERS_KEY, JSON.stringify(lista));
+}
+function usuarioExiste(nombre,matricula,grupo){
+  const lista = cargarUsuarios();
+  return lista.some(u =>
+    (u.nombre||"").toLowerCase()===nombre.toLowerCase() &&
+    (u.matricula||"").toLowerCase()===matricula.toLowerCase() &&
+    (u.grupo||"").toLowerCase()===grupo.toLowerCase()
+  );
+}
+function entrarSistema(){
+  const n = (document.getElementById("loginName").value||"").trim();
+  const m = (document.getElementById("loginMat").value||"").trim();
+  const g = (document.getElementById("loginGroup").value||"").trim();
+  const err = document.getElementById("loginError");
+  if(!n || !m || !g){
+    err.innerText = "Todos los campos son obligatorios.";
+    err.style.display = "block";
+    return;
+  }
+  if(n.toLowerCase()==="sandra del valle ramírez" && m.toLowerCase()==="profesora" && g==="0"){
+    currentUserName = n;
+    currentMatricula = m;
+    currentGrupo = g;
+    document.getElementById("userDisplay").innerText = "Admin: " + n;
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("levelCards").style.display = "none";
+    document.getElementById("infoBoxes").style.display = "none";
+    mostrarAdminPanel();
+    return;
+  }
+  if(usuarioExiste(n,m,g)){
+    err.innerText = "Ya existe un usuario con esa información.";
+    err.style.display = "block";
+    return;
+  }
+  guardarUsuario({nombre:n,matricula:m,grupo:g});
+  currentUserName = n;
+  currentMatricula = m;
+  currentGrupo = g;
+  document.getElementById("userDisplay").innerText = "Usuario: " + n;
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("levelCards").style.display = "flex";
+  document.getElementById("infoBoxes").style.display = "flex";
+}
+
+async function initPy(){ pyodide = await loadPyodide(); pyReady = true; }
+initPy();
+
+function seleccionarNivel(nivel){
+  if(intentoEnCurso && !intentoEnviado){
+    alert("Ya tienes un ejercicio en curso.");
+    return;
+  }
+  nivelActual = nivel;
+  intentoEnCurso = true;
+  intentoEnviado = false;
+  quizResults = [];
+  document.getElementById("levelCards").style.display = "none";
+  document.getElementById("infoBoxes").style.display = "none";
+  generarEjercicio();
+}
+
+function generarEjercicio(){
+  const lista = PROBLEMS[nivelActual];
+  const idx = Math.floor(Math.random() * lista.length);
+  problemaActual = JSON.parse(JSON.stringify(lista[idx]));
+  qIndex = 0;
+  quizResults = [];
+  document.getElementById("problemArea").style.display = "block";
+  document.getElementById("codeArea").style.display = "none";
+  document.getElementById("feedback").innerText = "";
+  document.getElementById("feedbackCode").innerText = "";
+  document.getElementById("userCode").value = "";
+  document.getElementById("verifyBtn").disabled = true;
+  document.getElementById("problemTitle").innerText = problemaActual.texto;
+  mostrarPregunta();
+}
+
+function mostrarPregunta(){
+  const box = document.getElementById("questionBox");
+  const opts = document.getElementById("optionsBox");
+  box.innerHTML = "";
+  opts.innerHTML = "";
+  document.getElementById("feedback").innerText = "";
+  if(qIndex >= problemaActual.preguntas.length){
+    document.getElementById("feedback").innerText = "Has respondido todas las preguntas del ejercicio. Ahora escribe tu código en Python y pulsa Enviar.";
+    document.getElementById("codeArea").style.display = "block";
+    document.getElementById("verifyBtn").disabled = false;
+    return;
+  }
+  const q = problemaActual.preguntas[qIndex];
+  box.innerHTML = `<strong>Pregunta ${qIndex+1} de ${problemaActual.preguntas.length}</strong><br>${q.enunciado}`;
+  q.opciones.forEach((op, i) => {
+    const b = document.createElement("button");
+    b.className = "option-btn";
+    b.innerText = String.fromCharCode(65+i) + ": " + op;
+    b.onclick = () => responder(i);
+    opts.appendChild(b);
+  });
+}
+
+function responder(indice){
+  const q = problemaActual.preguntas[qIndex];
+  const esCorrecta = indice === q.correcta;
+  quizResults.push(esCorrecta);
+  qIndex++;
+  mostrarPregunta();
+}
+
+function verificarCodigo(){
+  const userCode = document.getElementById("userCode").value;
+  currentUserCode = userCode || "";
+  document.getElementById("feedbackCode").innerText = "Tus respuestas han sido enviadas para revisión.";
+  enviarIntento("manual");
+}
+
+function escapeHtml(s){
+  if(typeof s !== "string") s = String(s);
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function cargarResultados(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){
+    return [];
+  }
+}
+function guardarResultado(reg){
+  const arr = cargarResultados();
+  arr.push(reg);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
+
+function enviarIntento(motivo){
+  if(!intentoEnCurso || intentoEnviado) return;
+  const totalPreg = quizResults.length;
+  const aciertos = quizResults.filter(x=>x).length;
+  const puntaje = totalPreg ? Math.round((aciertos/totalPreg)*100) : 0;
+  const registro = {
+    nombre: currentUserName || "Anónimo",
+    matricula: currentMatricula || "",
+    grupo: currentGrupo || "",
+    nivel: nivelActual || "",
+    ejercicio: problemaActual ? problemaActual.texto : "",
+    puntaje: puntaje,
+    aciertos: aciertos,
+    total: totalPreg,
+    fecha: (new Date()).toLocaleString(),
+    codigo: currentUserCode || "",
+    motivo: motivo || ""
+  };
+  guardarResultado(registro);
+  intentoEnviado = true;
+  intentoEnCurso = false;
+  nivelActual = null;
+  problemaActual = null;
+  qIndex = 0;
+  document.getElementById("problemArea").style.display = "none";
+  document.getElementById("codeArea").style.display = "none";
+  if(currentUserName && currentUserName.toLowerCase() === "sandra del valle ramírez" && currentMatricula && currentMatricula.toLowerCase() === "profesora" && currentGrupo === "0"){
+    mostrarAdminPanel();
+  }else{
+    document.getElementById("levelCards").style.display = "flex";
+    document.getElementById("infoBoxes").style.display = "flex";
+  }
+}
+
+function exportarCSV(){
+  const rows = cargarResultados();
+  if(rows.length === 0){ alert("No hay resultados para exportar."); return; }
+  const encabezado = ["nombre","matricula","grupo","nivel","ejercicio","puntaje","aciertos","total","fecha","codigo","motivo"];
+  const csv = [encabezado.join(",")].concat(rows.map(r=>[
+    csvSafe(r.nombre),
+    csvSafe(r.matricula||""),
+    csvSafe(r.grupo||""),
+    csvSafe(r.nivel||""),
+    csvSafe(r.ejercicio||""),
+    r.puntaje||0,
+    r.aciertos||0,
+    r.total||0,
+    csvSafe(r.fecha||""),
+    csvSafe(r.codigo||""),
+    csvSafe(r.motivo||"")
+  ].join(","))).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "resultados_ps_eint_python.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function csvSafe(s){
+  if(s === null || s === undefined) return "";
+  return '"'+String(s).replace(/"/g,'""')+'"';
+}
+function limpiarResultados(){
+  if(!confirm("¿Eliminar todos los resultados guardados? Esta acción es irreversible.")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderResultados();
+  alert("Resultados eliminados.");
+}
+
+function abrirLoginAdmin(){
+  document.getElementById("modal").style.display = "flex";
+  document.getElementById("loginMsg").style.display = "none";
+  document.getElementById("adminUser").value = "";
+  document.getElementById("adminPass").value = "";
+}
+function cerrarModal(){ document.getElementById("modal").style.display = "none"; }
+function loginAdmin(){
+  const msg = document.getElementById("loginMsg");
+  msg.style.display = "block";
+  msg.innerText = "El acceso al panel solo está disponible para la profesora Sandra del Valle Ramírez.";
+}
+
+function mostrarAdminPanel(){
+  document.getElementById("adminPanel").style.display = "block";
+  renderResultados();
+}
+function cerrarAdmin(){ document.getElementById("adminPanel").style.display = "none"; }
+
+function renderResultados(){
+  const wrap = document.getElementById("resultsTableWrap");
+  const rows = cargarResultados();
+  if(rows.length === 0){ wrap.innerHTML = "<div class='hint'>No hay resultados guardados.</div>"; return; }
+  let html = `<table><thead><tr>
+  <th>Nombre</th>
+  <th>Matrícula</th>
+  <th>Grupo</th>
+  <th>Nivel</th>
+  <th>Ejercicio</th>
+  <th>Puntaje %</th>
+  <th>Buenas</th>
+  <th>Malas</th>
+  <th>Total Preguntas</th>
+  <th>Fecha</th>
+  <th>Código</th>
+  <th>Motivo</th>
+  </tr></thead><tbody>`;
+  rows.slice().reverse().forEach(r=>{
+    const incorrectas = (r.total||0) - (r.aciertos||0);
+    html += `<tr>
+      <td>${escapeHtml(r.nombre||"")}</td>
+      <td>${escapeHtml(r.matricula||"")}</td>
+      <td>${escapeHtml(r.grupo||"")}</td>
+      <td>${escapeHtml(r.nivel||"")}</td>
+      <td>${escapeHtml(r.ejercicio||"")}</td>
+      <td>${r.puntaje||0}</td>
+      <td>${r.aciertos||0}</td>
+      <td>${incorrectas}</td>
+      <td>${r.total||0}</td>
+      <td>${escapeHtml(r.fecha||"")}</td>
+      <td><button class="main-btn" onclick="verCodigo('${btoa(unescape(encodeURIComponent(r.codigo||'')))}','${escapeHtml(r.nombre||"")}')">Ver código</button></td>
+      <td>${escapeHtml(r.motivo||"")}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  wrap.innerHTML = html;
+}
+function verCodigo(encoded, nombre){
+  let code = "";
+  try{ code = decodeURIComponent(escape(atob(encoded))); }catch(e){ code = "(código no disponible)"; }
+  alert("Código enviado por " + nombre + ":\n\n" + code);
+}
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+window.addEventListener("load", () => {
+  const cloud = document.getElementById("masteshCloud");
+  if(cloud){
+    cloud.classList.remove("hidden");
+    setTimeout(() => {
+      cloud.classList.add("hidden");
+    }, 5000);
+  }
+});
+
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden){
+    enviarIntento("cambio_de_ventana");
+  }
+});
+window.addEventListener("blur", () => {
+  enviarIntento("cambio_de_ventana");
+});
+
+document.addEventListener("copy", e=>{e.preventDefault();});
+document.addEventListener("cut", e=>{e.preventDefault();});
+document.addEventListener("paste", e=>{e.preventDefault();});
+document.addEventListener("contextmenu", e=>{e.preventDefault();});
+document.addEventListener("keydown", e=>{
+  if((e.ctrlKey||e.metaKey) && (e.key==='c'||e.key==='C'||e.key==='v'||e.key==='V'||e.key==='x'||e.key==='X')){
+    e.preventDefault();
+  }
+});
+</script>
+</body>
+</html>
