@@ -67,8 +67,9 @@
   .options{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
   .option-btn{flex:1;padding:10px;border-radius:8px;border:1px solid #2e8b57;background:#fff;cursor:pointer;text-align:left}
   .option-btn:hover{background:#f0fff0}
-  textarea{width:100%;height:220px;font-family:monospace;font-size:14px;padding:10px;border-radius:8px;border:1px solid #ddd;box-sizing:border-box}
+  textarea{width:100%;height:150px;font-family:monospace;font-size:14px;padding:10px;border-radius:8px;border:1px solid #ddd;box-sizing:border-box}
   .hint{margin-top:8px;color:#333;background:#f8f9fb;padding:8px;border-radius:6px;border:1px solid #eee;white-space:pre-wrap}
+  pre.codeq{background:#f8f9fb;border:1px solid #eee;border-radius:6px;padding:10px;margin:8px 0;white-space:pre-wrap;font-family:monospace;font-size:14px}
   footer{
     margin-top:auto;color:#1b3b1a;font-size:14px;text-align:center;font-weight:bold;
     background:rgba(255,255,255,0.85);width:100%;padding:12px 0;border-top:3px solid #2e8b57;
@@ -115,8 +116,13 @@
   }
   table{width:100%;border-collapse:collapse}
   th,td{padding:8px;border:1px solid #e6e6e6;text-align:left;font-size:14px}
+  .tablewrap{overflow-x:auto}
   .modal-bg{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:999}
   .modal{background:#fff;padding:18px;border-radius:8px;min-width:320px;max-width:90%}
+  .modal.big{width:760px;max-height:85vh;overflow:auto}
+  .kpis{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .kpi{background:#f0fff0;border:1px solid #cfe9d6;border-radius:8px;padding:10px 14px;min-width:150px}
+  .kpi b{display:block;font-size:22px;color:#256b45}
   input,textarea{user-select:text;-webkit-user-select:text;-ms-user-select:text}
   @media(max-width:900px){
     .page-image{display:none}
@@ -148,19 +154,17 @@
 </div>
 
 <div id="masteshCloud" class="mastesh-cloud" role="note" aria-live="polite">
-  Hola estudiante, listo para reforzar los conocimientos de programación en lenguaje Python, selecciona tu nivel.
+  Hola estudiante, este es tu examen diagnóstico para el hackatón. Responde con calma y no cambies de pestaña.
 </div>
 
 <div id="infoBoxes" style="display:none">
-  <div class="info"><strong>Nivel Básico</strong><div class="small">Uso de input, print, variables y operaciones simples.</div></div>
-  <div class="info"><strong>Nivel Medio</strong><div class="small">Bucles, condicionales, operaciones matemáticas y manejo de listas simples.</div></div>
-  <div class="info"><strong>Nivel Medio-Alto</strong><div class="small">Listas, comprensiones, condicionales, manipulación de datos.</div></div>
+  <div class="info"><strong>Programación básica</strong><div class="small">Variables, condicionales, ciclos, funciones y API (9 preguntas).</div></div>
+  <div class="info"><strong>Video, audio y liderazgo</strong><div class="small">Edición de video y audio, y trabajo en equipo (8 preguntas).</div></div>
+  <div class="info"><strong>Problema, prompts y herramientas</strong><div class="small">Definir problemas, usar IA y elegir herramientas (3 preguntas).</div></div>
 </div>
 
 <div class="levels" id="levelCards" style="display:none">
-  <div class="level-card" onclick="seleccionarNivel('bajo')"><h3>Nivel Básico</h3><div class="small">5 ejercicios</div></div>
-  <div class="level-card" onclick="seleccionarNivel('medio')"><h3>Nivel Medio</h3><div class="small">5 ejercicios</div></div>
-  <div class="level-card" onclick="seleccionarNivel('medioalto')"><h3>Nivel Medio-Alto</h3><div class="small">5 ejercicios</div></div>
+  <div class="level-card" onclick="iniciarExamen()"><h3>Examen diagnóstico</h3><div class="small">20 preguntas</div></div>
 </div>
 
 <div id="problemArea">
@@ -171,11 +175,11 @@
 </div>
 
 <div id="codeArea">
-  <h3>Escribe tu código Python</h3>
-  <div class="small">Escribe tu solución y pulsa <strong>Enviar</strong>. Tus respuestas se registrarán para revisión.</div>
-  <textarea id="userCode" placeholder="Escribe un programa en Python para este problema"></textarea>
+  <h3>Escribe tu respuesta</h3>
+  <div class="small">Escribe con tus palabras. Si no recuerdas la sintaxis de Python, puedes usar pseudocódigo.</div>
+  <textarea id="userCode" placeholder="Escribe tu respuesta aquí"></textarea>
   <div style="margin-top:10px;">
-    <button class="main-btn" id="verifyBtn" onclick="verificarCodigo()" disabled>Enviar</button>
+    <button class="main-btn" id="verifyBtn" onclick="siguiente()">Siguiente</button>
   </div>
   <div id="feedbackCode" class="hint"></div>
 </div>
@@ -186,11 +190,13 @@
 <div id="adminPanel">
   <h3>Panel Admin - Resultados guardados</h3>
   <div style="margin-bottom:10px;">
+    <button class="main-btn" onclick="analizarHackaton()">Análisis hackatón</button>
     <button class="main-btn" onclick="exportarCSV()">Exportar CSV</button>
     <button class="main-btn" onclick="limpiarResultados()">Limpiar todo</button>
     <button class="main-btn" onclick="cerrarAdmin()">Cerrar</button>
   </div>
-  <div id="resultsTableWrap"></div>
+  <div id="analisisBox"></div>
+  <div id="resultsTableWrap" class="tablewrap"></div>
 </div>
 
 <img src="mastesh.png" alt="Imagen TESH" class="page-image">
@@ -210,858 +216,144 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
-<script>
-const PROBLEMS = {
-  bajo: [
-    {
-      texto: "Saludar al usuario",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace la línea: Definir nombre Como Caracter?",
-          opciones: [
-            "Declara una variable de texto para guardar el nombre.",
-            "Imprime el nombre en la pantalla.",
-            "Finaliza el algoritmo.",
-            "Declara una variable numérica."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir \"Ingresa tu nombre:\"?",
-          opciones: [
-            "Captura lo que escribe el usuario.",
-            "Muestra un mensaje pidiendo el nombre.",
-            "Borra la variable nombre.",
-            "Guarda el nombre automáticamente."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la línea: Leer nombre?",
-          opciones: [
-            "Imprime el valor de nombre.",
-            "Convierte el nombre a mayúsculas.",
-            "Captura lo que escribe el usuario y lo guarda en nombre.",
-            "Termina el programa."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir \"Hola, \", nombre, \"!\"?",
-          opciones: [
-            "Pide que se vuelva a escribir el nombre.",
-            "Muestra un saludo usando el nombre guardado.",
-            "Guarda el saludo en un archivo.",
-            "Borra el valor de nombre."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué tipo de dato es más adecuado para la variable nombre?",
-          opciones: [
-            "Entero.",
-            "Real.",
-            "Caracter (cadena de texto).",
-            "Booleano."
-          ],
-          correcta: 2
-        }
-      ]
-    },
-    {
-      texto: "Edad del usuario",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace la línea: Definir edad Como Entero?",
-          opciones: [
-            "Declara una variable de texto.",
-            "Declara una variable numérica sin decimales.",
-            "Fin del programa.",
-            "Imprime la edad."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir \"Ingresa tu edad:\"?",
-          opciones: [
-            "Pide al usuario que ingrese su edad.",
-            "Convierte la edad a entero.",
-            "Reinicia la variable edad.",
-            "Muestra la edad final."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Leer edad?",
-          opciones: [
-            "Imprime la edad.",
-            "Captura lo que ingresa el usuario y lo guarda en edad.",
-            "Convierte edad a texto.",
-            "Termina el programa."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir \"Tienes \", edad, \" años\"?",
-          opciones: [
-            "Incrementa la edad en 1.",
-            "Calcula la edad al cuadrado.",
-            "Muestra la edad acompañada de texto.",
-            "Borra la edad."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué dato se espera que ingrese el usuario en edad?",
-          opciones: [
-            "Un número entero.",
-            "Un número real.",
-            "Una cadena.",
-            "Un valor lógico."
-          ],
-          correcta: 0
-        }
-      ]
-    },
-    {
-      texto: "Cuadrado de un número",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace la línea: Definir num Como Entero?",
-          opciones: [
-            "Declara una variable para guardar un número entero.",
-            "Declara una variable de texto.",
-            "Finaliza el algoritmo.",
-            "Imprime un mensaje."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir \"Ingresa un número:\"?",
-          opciones: [
-            "Pide al usuario un número.",
-            "Calcula el cuadrado.",
-            "Lee el número.",
-            "Cierra el programa."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Leer num?",
-          opciones: [
-            "Imprime num.",
-            "Lee el valor ingresado y lo guarda en num.",
-            "Eleva num al cuadrado.",
-            "Convierte num a cadena."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la línea: num = num * num?",
-          opciones: [
-            "Calcula el cuadrado de num.",
-            "Suma num + num.",
-            "Divide num entre 2.",
-            "Resta 1 a num."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea final del algoritmo?",
-          opciones: [
-            "Muestra el valor de num ya elevado al cuadrado.",
-            "Pide otro número.",
-            "Reinicia el programa.",
-            "Convierte num a texto."
-          ],
-          correcta: 0
-        }
-      ]
-    },
-    {
-      texto: "Suma de dos números",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace la línea: Definir a, b Como Entero?",
-          opciones: [
-            "Declara dos variables numéricas enteras.",
-            "Declara dos variables de texto.",
-            "Imprime a y b.",
-            "Finaliza el programa."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Leer a?",
-          opciones: [
-            "Imprime el valor de a.",
-            "Lee y guarda el primer número.",
-            "Calcula la suma.",
-            "Reinicia a."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la línea: Leer b?",
-          opciones: [
-            "Lee y guarda el segundo número.",
-            "Imprime b.",
-            "Resta b.",
-            "Cierra el algoritmo."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir a + b?",
-          opciones: [
-            "Muestra la suma de a y b.",
-            "Muestra la resta.",
-            "Muestra el producto.",
-            "Muestra el cociente."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué tipo de datos se espera para a y b?",
-          opciones: [
-            "Texto.",
-            "Booleano.",
-            "Entero.",
-            "Lista."
-          ],
-          correcta: 2
-        }
-      ]
-    },
-    {
-      texto: "Color favorito",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace la línea: Definir color Como Caracter?",
-          opciones: [
-            "Declara una variable de texto.",
-            "Declara una variable numérica.",
-            "Imprime color.",
-            "Finaliza el algoritmo."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir \"Ingresa tu color:\"?",
-          opciones: [
-            "Pide al usuario que ingrese su color.",
-            "Lee el color.",
-            "Borra la variable color.",
-            "Convierte el color a mayúsculas."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué hace la línea: Leer color?",
-          opciones: [
-            "Imprime color.",
-            "Captura la entrada del usuario y la guarda.",
-            "Convierte color a número.",
-            "Cierra el programa."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la línea: Escribir \"Tu color favorito es\", color?",
-          opciones: [
-            "Pide de nuevo el color.",
-            "Muestra el color guardado.",
-            "Elimina la variable.",
-            "Convierte color a número."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué tipo de dato es más adecuado para color?",
-          opciones: [
-            "Entero.",
-            "Real.",
-            "Cadena de texto.",
-            "Booleano."
-          ],
-          correcta: 2
-        }
-      ]
-    }
-  ],
-  medio: [
-    {
-      texto: "Inversión anual (mostrar capital cada año)",
-      preguntas: [
-        {
-          enunciado: "¿Qué representa la variable cantidad?",
-          opciones: [
-            "El número de años.",
-            "El interés anual.",
-            "El capital a invertir.",
-            "El resultado final."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué representa la variable interes?",
-          opciones: [
-            "El capital inicial.",
-            "El porcentaje anual aplicado al capital.",
-            "El número de meses.",
-            "El número de años."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace el bucle for en este ejercicio?",
-          opciones: [
-            "Ejecuta el cálculo una vez.",
-            "Repite el cálculo para cada año.",
-            "Convierte el interés en entero.",
-            "Finaliza el programa."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué operación se realiza dentro del bucle?",
-          opciones: [
-            "Se resta el interés.",
-            "Se multiplica la cantidad por cero.",
-            "Se suma a cantidad el interés generado.",
-            "Se divide la cantidad entre 2."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué muestra la instrucción print dentro del bucle?",
-          opciones: [
-            "El capital inicial.",
-            "Solo el interés generado.",
-            "El número de años sin capital.",
-            "El capital actualizado en cada año."
-          ],
-          correcta: 3
-        }
-      ]
-    },
-    {
-      texto: "Celsius a Fahrenheit",
-      preguntas: [
-        {
-          enunciado: "¿Qué tipo de dato se usa para la variable c?",
-          opciones: [
-            "Entero.",
-            "Cadena.",
-            "Real o flotante.",
-            "Booleano."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué fórmula se usa para convertir Celsius a Fahrenheit?",
-          opciones: [
-            "f = (c - 32) * 5/9",
-            "f = (c * 9/5) + 32",
-            "f = c + 273",
-            "f = c / 2"
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la función float() aplicada a la entrada?",
-          opciones: [
-            "Convierte el texto introducido a número con decimales.",
-            "Convierte el número a texto.",
-            "Elimina los decimales.",
-            "Reinicia el valor."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué muestra el print final?",
-          opciones: [
-            "La temperatura en Celsius.",
-            "La temperatura en Kelvin.",
-            "La temperatura en Fahrenheit.",
-            "El tipo de dato de c."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "Si c = 0, ¿qué valor toma f?",
-          opciones: [
-            "0",
-            "32",
-            "100",
-            "273"
-          ],
-          correcta: 1
-        }
-      ]
-    },
-    {
-      texto: "Área de un triángulo",
-      preguntas: [
-        {
-          enunciado: "¿Qué variables intervienen en el cálculo del área?",
-          opciones: [
-            "base y altura.",
-            "base y radio.",
-            "radio y altura.",
-            "diámetro y altura."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué fórmula se utiliza para calcular el área?",
-          opciones: [
-            "base * altura",
-            "(base * altura) / 2",
-            "base + altura",
-            "(base + altura) / 2"
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué tipo de dato se usa para base y altura?",
-          opciones: [
-            "Entero.",
-            "Texto.",
-            "Booleano.",
-            "Real o flotante."
-          ],
-          correcta: 3
-        },
-        {
-          enunciado: "¿Qué hace el print final?",
-          opciones: [
-            "Muestra el perímetro.",
-            "Muestra el área del triángulo.",
-            "Muestra la base.",
-            "Muestra la altura."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "Si base = 4 y altura = 5, ¿qué área se obtiene?",
-          opciones: [
-            "9",
-            "10",
-            "20",
-            "2"
-          ],
-          correcta: 1
-        }
-      ]
-    },
-    {
-      texto: "Número par o impar",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace la expresión num % 2?",
-          opciones: [
-            "Divide num entre 2.",
-            "Obtiene el residuo de dividir num entre 2.",
-            "Multiplica num por 2.",
-            "Resta 2 a num."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Cuándo se considera que un número es par?",
-          opciones: [
-            "Cuando num % 2 da 1.",
-            "Cuando num % 2 da 0.",
-            "Cuando num es menor que 2.",
-            "Cuando num es negativo."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué estructura se usa para decidir entre par o impar?",
-          opciones: [
-            "for",
-            "while",
-            "if - else",
-            "try - except"
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué hace la línea if num % 2 == 0?",
-          opciones: [
-            "Comprueba si num es par.",
-            "Comprueba si num es impar.",
-            "Convierte num a cero.",
-            "Convierte num a entero."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "Si num = 6, ¿qué mensaje se muestra?",
-          opciones: [
-            "Es impar",
-            "Es par",
-            "Error",
-            "Nada"
-          ],
-          correcta: 1
-        }
-      ]
-    },
-    {
-      texto: "Factorial",
-      preguntas: [
-        {
-          enunciado: "¿Qué valor inicial suele tomar la variable fact para calcular factorial?",
-          opciones: [
-            "0",
-            "1",
-            "num",
-            "2"
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace el bucle for i in range(1, num+1)?",
-          opciones: [
-            "Suma los números del 1 a num.",
-            "Multiplica los números del 1 a num.",
-            "Divide los números del 1 a num.",
-            "Resta los números del 1 a num."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace la instrucción fact *= i?",
-          opciones: [
-            "fact = fact + i",
-            "fact = fact * i",
-            "fact = fact - i",
-            "fact = fact / i"
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué es el factorial de un número?",
-          opciones: [
-            "La suma de todos los números hasta ese número.",
-            "El producto de todos los enteros positivos hasta ese número.",
-            "La mitad del número.",
-            "El cuadrado del número."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "Si num = 5, ¿qué valor debería mostrar el programa?",
-          opciones: [
-            "10",
-            "25",
-            "5",
-            "120"
-          ],
-          correcta: 3
-        }
-      ]
-    }
-  ],
-  medioalto: [
-    {
-      texto: "Asignaturas pendientes",
-      preguntas: [
-        {
-          enunciado: "¿Qué almacena la lista asignaturas?",
-          opciones: [
-            "Las notas de cada materia.",
-            "Los nombres de las materias.",
-            "Los promedios finales.",
-            "Los nombres de los alumnos."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace notas.append(n)?",
-          opciones: [
-            "Elimina una nota.",
-            "Ordena las notas.",
-            "Agrega la nota leída a la lista.",
-            "Convierte la nota a texto."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué condición se usa para detectar materias reprobadas?",
-          opciones: [
-            "notas[i] > 6",
-            "notas[i] == 6",
-            "notas[i] < 6",
-            "notas[i] >= 6"
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué almacena la lista pendientes?",
-          opciones: [
-            "Las materias aprobadas.",
-            "Las materias reprobadas.",
-            "Las notas ordenadas.",
-            "Los nombres de los alumnos."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué muestra el print final?",
-          opciones: [
-            "Las notas aprobadas.",
-            "Las materias a repetir.",
-            "El promedio general.",
-            "La mejor nota."
-          ],
-          correcta: 1
-        }
-      ]
-    },
-    {
-      texto: "Lista de números pares",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace la expresión [int(x) for x in input().split()]?",
-          opciones: [
-            "Lee un solo número.",
-            "Convierte una lista de textos a enteros.",
-            "Convierte una lista de enteros a texto.",
-            "Ordena la lista."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué condición se usa para que un número pertenezca a pares?",
-          opciones: [
-            "n % 2 != 0",
-            "n % 2 == 0",
-            "n > 2",
-            "n < 0"
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué tipo de estructura es pares = [n for n in numeros if n % 2 == 0]?",
-          opciones: [
-            "Comprensión de listas.",
-            "Bucle while.",
-            "Función recursiva.",
-            "Condicional simple."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué datos contiene la lista pares?",
-          opciones: [
-            "Solo números impares.",
-            "Solo números pares.",
-            "Notas reprobadas.",
-            "Palabras."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "Si la entrada es 1 2 3 4 5 6, ¿qué muestra el programa?",
-          opciones: [
-            "[1, 3, 5]",
-            "[2, 4, 6]",
-            "[1, 2, 3, 4, 5, 6]",
-            "[]"
-          ],
-          correcta: 1
-        }
-      ]
-    },
-    {
-      texto: "Mayores de edad",
-      preguntas: [
-        {
-          enunciado: "¿Qué representa la lista nombres?",
-          opciones: [
-            "Edades de personas.",
-            "Nombres asociados a las edades.",
-            "Notas de alumnos.",
-            "Materias reprobadas."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace edades = [int(x) for x in input().split()]?",
-          opciones: [
-            "Convierte las edades ingresadas en una lista de enteros.",
-            "Ordena las edades.",
-            "Imprime las edades.",
-            "Convierte las edades a texto."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué condición se usa para seleccionar mayores?",
-          opciones: [
-            "edades[i] <= 18",
-            "edades[i] < 18",
-            "edades[i] >= 18",
-            "edades[i] == 18"
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué contiene la lista mayores?",
-          opciones: [
-            "Las edades mayores de 18.",
-            "Los nombres cuyas edades son mayores o iguales a 18.",
-            "Las notas reprobadas.",
-            "Los nombres menores de edad."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "Si las edades son 16 20 18 17, ¿qué nombres se muestran como mayores?",
-          opciones: [
-            "Ana y Marta",
-            "Luis y Carlos",
-            "Ana y Carlos",
-            "Solo Carlos"
-          ],
-          correcta: 1
-        }
-      ]
-    },
-    {
-      texto: "Palabras que empiezan con vocal",
-      preguntas: [
-        {
-          enunciado: "¿Qué hace palabras = input().split()?",
-          opciones: [
-            "Une palabras.",
-            "Separa el texto en palabras individuales.",
-            "Convierte a mayúsculas.",
-            "Ordena alfabéticamente."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué representa la lista vocales = [\"a\",\"e\",\"i\",\"o\",\"u\"]?",
-          opciones: [
-            "Vocales mayúsculas.",
-            "Consonantes.",
-            "Vocales minúsculas.",
-            "Números."
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué hace p[0].lower()?",
-          opciones: [
-            "Toma la última letra de la palabra.",
-            "Convierte la primera letra a minúscula.",
-            "Convierte toda la palabra a mayúsculas.",
-            "Elimina la primera letra."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué condición se usa para seleccionar palabras?",
-          opciones: [
-            "p[0].lower() not in vocales",
-            "p[0].lower() in vocales",
-            "len(p) > 3",
-            "p.endswith('a')"
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "Si la entrada es: amarillo azul Casa iguana perro, ¿qué palabras se seleccionan?",
-          opciones: [
-            "amarillo, azul, iguana",
-            "Casa, perro",
-            "solo perro",
-            "amarillo, perro"
-          ],
-          correcta: 0
-        }
-      ]
-    },
-    {
-      texto: "Productos con precio >= 50",
-      preguntas: [
-        {
-          enunciado: "¿Qué contiene la lista productos?",
-          opciones: [
-            "Precios de cada producto.",
-            "Nombres de los productos.",
-            "Cantidades en inventario.",
-            "Descuentos."
-          ],
-          correcta: 1
-        },
-        {
-          enunciado: "¿Qué hace precios = [float(x) for x in input().split()]?",
-          opciones: [
-            "Convierte la entrada en lista de precios numéricos.",
-            "Imprime los precios.",
-            "Convierte precios a texto.",
-            "Ordena los productos."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "¿Qué condición se usa para filtrar productos en resultado?",
-          opciones: [
-            "precios[i] <= 50",
-            "precios[i] < 50",
-            "precios[i] >= 50",
-            "precios[i] == 50"
-          ],
-          correcta: 2
-        },
-        {
-          enunciado: "¿Qué almacena la lista resultado?",
-          opciones: [
-            "Los nombres de productos con precio mayor o igual a 50.",
-            "Los precios de todos los productos.",
-            "Solo los precios menores de 50.",
-            "Los productos agotados."
-          ],
-          correcta: 0
-        },
-        {
-          enunciado: "Si los precios son 30 60 75, ¿qué productos se muestran?",
-          opciones: [
-            "Producto1 y Producto2",
-            "Producto2 y Producto3",
-            "Solo Producto1",
-            "Ninguno"
-          ],
-          correcta: 1
-        }
-      ]
-    }
-  ]
-};
+<div id="modalResp" class="modal-bg">
+  <div class="modal big">
+    <h3 id="respTitulo">Respuestas</h3>
+    <div id="respCuerpo"></div>
+    <div style="text-align:right;margin-top:10px;">
+      <button class="main-btn" onclick="cerrarResp()">Cerrar</button>
+    </div>
+  </div>
+</div>
 
-let nivelActual = null;
-let problemaActual = null;
-let qIndex = 0;
-let pyodide = null;
-let pyReady = false;
+<script>
+/* ========== EXAMEN DIAGNÓSTICO (20 preguntas) ==========
+   tipo "opcion": opción múltiple (correcta = índice).
+   tipo "abierta": la alumna escribe; se califica por palabras clave parecidas a la respuesta correcta.
+     claves: lista de grupos; cada grupo es una lista de términos alternativos (sin acentos, en minúsculas).
+     min: cuántos grupos deben aparecer para considerarla buena.
+     Términos: "re:..." = expresión regular; solo números = número exacto; el resto = coincidencia parcial tolerante a pequeños errores de escritura. */
+const PARTES = {
+  A: "Parte A. Programación básica",
+  B: "Parte B. Edición de video y audio",
+  C: "Parte C. Liderazgo y trabajo en equipo",
+  D: "Parte D. Problema, prompts y herramientas"
+};
+const AREAS = { A: "Programación", B: "Video y audio", C: "Liderazgo", D: "Problema y herramientas" };
+
+const PREGUNTAS = [
+  { p:"A", tipo:"abierta",
+    enunciado:"Relaciona cada concepto con su definición escribiendo la letra. Escribe así: Variable _, Lista _, Función _, Ciclo _.<br><br><strong>Conceptos:</strong> Variable, Lista, Función, Ciclo<br>a) Bloque de código que se puede usar varias veces<br>b) Conjunto ordenado de valores<br>c) Instrucciones que se repiten<br>d) Nombre que guarda un dato",
+    claves:[["re:variable\\W{0,4}d\\b"],["re:lista\\W{0,4}b\\b"],["re:funcion\\W{0,4}a\\b"],["re:ciclo\\W{0,4}c\\b"]], min:3 },
+  { p:"A", tipo:"abierta", enunciado:"¿Qué imprime este código?",
+    codigo:"x = 5\ny = x * 2\nprint(y + 1)",
+    claves:[["11"]], min:1 },
+  { p:"A", tipo:"abierta", enunciado:"En Python, ¿qué diferencia hay entre <code>=</code> y <code>==</code>? Da un ejemplo de cada uno.",
+    claves:[["asign","guarda","almacena","da valor","define","pone el valor"],["compar","igual","condicion","verific","pregunta si"]], min:2 },
+  { p:"A", tipo:"abierta", enunciado:"¿Qué imprime este código?",
+    codigo:"frutas = [\"uva\", \"pera\", \"kiwi\"]\nprint(frutas[1])",
+    claves:[["pera"]], min:1 },
+  { p:"A", tipo:"abierta", enunciado:"¿Qué imprime este código?",
+    codigo:"n = 3\nwhile n > 0:\n    print(n)\n    n = n - 1",
+    claves:[["re:3\\D*2\\D*1"]], min:1 },
+  { p:"A", tipo:"abierta", enunciado:"Tu app del clima necesita datos que están en internet. ¿Qué usarías para obtenerlos y por qué?",
+    claves:[["re:\\bapi\\b","peticion","requests","servicio web","servicio","json","endpoint","consumir"]], min:1 },
+  { p:"A", tipo:"abierta", enunciado:"Este código tiene dos errores. Encuéntralos y escribe la versión corregida:",
+    codigo:"precio = 100\nif precio > 50\nprint(\"Caro\")",
+    claves:[["dos puntos","re:if precio\\s*>\\s*50\\s*:","re:\\bif\\b[^\\n]*50\\s*:"],["sangria","indent","identa","tabul","espacio","dentro del if","adentro"]], min:2 },
+  { p:"A", tipo:"abierta", enunciado:"<strong>(Explicar código)</strong> Describe con tus palabras qué hace este programa y qué imprime:",
+    codigo:"def descuento(precio, porcentaje):\n    return precio - (precio * porcentaje / 100)\n\nprint(descuento(200, 10))",
+    claves:[["descuent","porcentaj","rebaj","precio final","resta","disminuy","reduce"],["180"]], min:2 },
+  { p:"A", tipo:"abierta", enunciado:"<strong>(Ejercicio práctico)</strong> Escribe un programa que pregunte cuántos boletos quiere comprar una persona y muestre el total a pagar. Cada boleto cuesta 50 pesos; si compra 4 o más, se aplica 10% de descuento.",
+    claves:[["input","leer","pregunt","pedir"],["50"],["re:\\bif\\b","re:\\bsi\\b","condicion"],["print","escribir","mostrar","imprim"],["0.9","re:0\\.1","10","90","descuent","%"]], min:4 },
+
+  { p:"B", tipo:"opcion", enunciado:"En un editor de video, ¿para qué sirve la línea de tiempo (timeline)?",
+    opciones:["Para elegir el color de la app","Para ordenar, cortar y combinar clips de video y audio","Para subir el video a internet","Para traducir el video"], correcta:1 },
+  { p:"B", tipo:"opcion", enunciado:"¿Qué mejora más la claridad de una grabación de voz?",
+    opciones:["Poner música fuerte de fondo","Grabar lejos del micrófono","Grabar en un lugar silencioso con el micrófono cerca","Hablar más rápido"], correcta:2 },
+  { p:"B", tipo:"abierta", enunciado:"Grabaste 5 minutos de video y debes dejarlo en 90 segundos. Describe tu proceso paso a paso.",
+    claves:[["cort","recort","eliminar","quitar","descart"],["escena","parte importante","esencial","relevante","clave","lo mejor","lo principal"],["ordenar","unir","linea de tiempo","timeline","juntar","ritmo","montaje"],["exportar","guardar","renderiz","revisar","duracion","90"]], min:2 },
+  { p:"B", tipo:"abierta", enunciado:"Escribe el guion de un demo para una app que ayuda a encontrar tutores en la universidad: una frase por escena, en 4 escenas (una por renglón).",
+    claves:[["tutor","app","aplicacion","estudiante","ayuda","asesor","buscar","encontrar"]], min:1, minSeg:3 },
+
+  { p:"C", tipo:"opcion", enunciado:"Una integrante de tu equipo nunca habla en las reuniones. ¿Qué haces?",
+    opciones:["La ignoro para avanzar más rápido","Le pregunto directamente su opinión y creo espacio para que participe","Le digo que hable más fuerte","Pido que la cambien de equipo"], correcta:1 },
+  { p:"C", tipo:"abierta", enunciado:"¿Qué diferencia hay entre ser líder y ser jefa de un equipo? Responde en 2 o 3 frases.",
+    claves:[["escucha","guia","motiv","inspira","ejemplo","apoya","acompan","colabor","conven"],["manda","ordena","autoridad","impone","cargo","dirige","jerarquia","exige"]], min:1 },
+  { p:"C", tipo:"abierta", enunciado:"Eres la líder. Dos integrantes no entregaron su parte y quedan 5 horas. Explica qué les dices y cómo reorganizas el trabajo.",
+    claves:[["habl","pregunt","platic","comunic","entend","motivo","razon","causa","dialog","escuch"],["prioridad","prioriz","minimo","reorganiz","reparto","reparti","redistribu","reasign","dividir","tareas","lo esencial"]], min:2 },
+  { p:"C", tipo:"abierta", enunciado:"Menciona tres señales de que un equipo está estresado y qué harías ante cada una.",
+    claves:[["discus","conflicto","pelea","enoj","gritos","tension","irrit","frustr","nervio","silencio","callad","retraso","tarde","no entreg","ausen","cansanc","agobi","bloque"],["pausa","descanso","respir","hablar","escuchar","reparti","prioriz","comunic","apoyo","calma","organiz","dividir","ayud"]], min:2 },
+
+  { p:"D", tipo:"opcion", enunciado:"¿Cuál de estos es un problema bien definido?",
+    opciones:["\"Quiero hacer una app bonita\"","\"Las estudiantes de primer semestre no saben dónde pedir asesorías y pierden clases\"","\"La tecnología es difícil\"","\"Hacer algo con inteligencia artificial\""], correcta:1 },
+  { p:"D", tipo:"abierta", enunciado:"Compara estos dos prompts y explica cuál es mejor y por qué:<br>Prompt 1: \"Escribe código\"<br>Prompt 2: \"Escribe en Python una función que reciba una lista de calificaciones y regrese el promedio. Agrega comentarios explicando cada línea.\"",
+    claves:[["prompt 2","segundo","el 2","el dos","re:\\b2\\b"],["especific","claro","detall","lenguaje","python","funcion","comentario","contexto","preciso","concret","instruccion"]], min:2 },
+  { p:"D", tipo:"abierta", enunciado:"Debes hacer una app para celulares Android y un script de Python para analizar datos. ¿Qué herramienta usarías para cada uno? Menciona también una limitación de usar IA para programar.",
+    claves:[["android studio","androidstudio"],["vs code","vscode","visual studio code"],["equivoc","inventa","error","alucin","no entiende","contexto","revisar","verificar","limita","no siempre","incorrect","falla","depend"]], min:3 }
+];
+const TOTAL_PREG = PREGUNTAS.length;
+const UMBRAL_APTA = 71;
+const UMBRAL_APOYO = 41;
+
+const MOTIVO_MANUAL = "Envío manual (terminó el examen)";
+const MOTIVO_VENTANA = "Envío automático: salió de la pestaña o cambió de ventana";
+
+let preguntaActual = 0;
+let respuestas = [];
 let currentUserName = null;
-let currentUserCode = "";
 let currentMatricula = null;
 let currentGrupo = null;
-let quizResults = [];
 let intentoEnCurso = false;
 let intentoEnviado = false;
 
-const USERS_KEY = "ps_eint_python_usuarios_v1";
-const STORAGE_KEY = "ps_eint_python_resultados_v1";
+const USERS_KEY = "ps_hackaton_usuarios_v1";
+const STORAGE_KEY = "ps_hackaton_resultados_v1";
 
+/* ---------- Calificación de respuestas escritas ---------- */
+function norm(s){
+  return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
+}
+function lev(a,b){
+  const m=a.length, n=b.length;
+  if(!m) return n; if(!n) return m;
+  let prev = Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){
+    const cur=[i];
+    for(let j=1;j<=n;j++){
+      cur[j]=Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    }
+    prev=cur;
+  }
+  return prev[n];
+}
+function coincide(t, term){
+  if(term.indexOf("re:")===0){
+    try{ return new RegExp(term.slice(3)).test(t); }catch(e){ return false; }
+  }
+  if(/^\d+(\.\d+)?$/.test(term)){
+    return new RegExp("(^|[^0-9])"+term.replace(".","\\.")+"(?![0-9])").test(t);
+  }
+  if(t.indexOf(term)!==-1) return true;
+  if(term.indexOf(" ")===-1 && term.length>=5){
+    const max = term.length>=8 ? 2 : 1;
+    return t.split(/[^a-z0-9]+/).some(w => w.length>=term.length-1 && lev(w.slice(0,term.length), term)<=max);
+  }
+  return false;
+}
+function calificarAbierta(q, texto){
+  const t = norm(texto);
+  if(!t) return false;
+  if(q.minSeg){
+    const segs = String(texto).split(/\n|\.\s|;|\d+\s*[.)]/).map(s=>s.trim()).filter(s=>s.length>8);
+    if(segs.length < q.minSeg) return false;
+  }
+  let hits = 0;
+  q.claves.forEach(g => { if(g.some(term => coincide(t, term))) hits++; });
+  return hits >= q.min;
+}
+
+/* ---------- Usuarios ---------- */
 function cargarUsuarios(){
   try{ return JSON.parse(localStorage.getItem(USERS_KEY)) || [] }catch(e){ return [] }
 }
@@ -1078,6 +370,9 @@ function usuarioExiste(nombre,matricula,grupo){
     (u.grupo||"").toLowerCase()===grupo.toLowerCase()
   );
 }
+function esAdmin(n,m,g){
+  return norm(n).indexOf("francisco almaraz")===0 && String(m).trim()==="2828" && String(g).trim()==="2828";
+}
 function entrarSistema(){
   const n = (document.getElementById("loginName").value||"").trim();
   const m = (document.getElementById("loginMat").value||"").trim();
@@ -1088,7 +383,7 @@ function entrarSistema(){
     err.style.display = "block";
     return;
   }
-  if(n.toLowerCase()==="sandra del valle ramírez" && m.toLowerCase()==="profesora" && g==="0"){
+  if(esAdmin(n,m,g)){
     currentUserName = n;
     currentMatricula = m;
     currentGrupo = g;
@@ -1114,75 +409,91 @@ function entrarSistema(){
   document.getElementById("infoBoxes").style.display = "flex";
 }
 
-async function initPy(){ pyodide = await loadPyodide(); pyReady = true; }
-initPy();
-
-function seleccionarNivel(nivel){
+/* ---------- Flujo del examen ---------- */
+function yaPresento(){
+  const mat = (currentMatricula||"").toLowerCase();
+  return cargarResultados().some(r => (r.matricula||"").toLowerCase()===mat);
+}
+function iniciarExamen(){
   if(intentoEnCurso && !intentoEnviado){
-    alert("Ya tienes un ejercicio en curso.");
+    alert("Ya tienes un examen en curso.");
     return;
   }
-  nivelActual = nivel;
+  if(yaPresento()){
+    alert("Ya presentaste este examen.");
+    return;
+  }
   intentoEnCurso = true;
   intentoEnviado = false;
-  quizResults = [];
+  respuestas = [];
+  preguntaActual = 0;
   document.getElementById("levelCards").style.display = "none";
   document.getElementById("infoBoxes").style.display = "none";
-  generarEjercicio();
-}
-
-function generarEjercicio(){
-  const lista = PROBLEMS[nivelActual];
-  const idx = Math.floor(Math.random() * lista.length);
-  problemaActual = JSON.parse(JSON.stringify(lista[idx]));
-  qIndex = 0;
-  quizResults = [];
+  document.getElementById("examArea").style.display = "none";
   document.getElementById("problemArea").style.display = "block";
-  document.getElementById("codeArea").style.display = "none";
-  document.getElementById("feedback").innerText = "";
-  document.getElementById("feedbackCode").innerText = "";
-  document.getElementById("userCode").value = "";
-  document.getElementById("verifyBtn").disabled = true;
-  document.getElementById("problemTitle").innerText = problemaActual.texto;
   mostrarPregunta();
 }
 
 function mostrarPregunta(){
+  const q = PREGUNTAS[preguntaActual];
   const box = document.getElementById("questionBox");
   const opts = document.getElementById("optionsBox");
-  box.innerHTML = "";
+  document.getElementById("problemTitle").innerText = PARTES[q.p];
+  let html = "<strong>Pregunta " + (preguntaActual+1) + " de " + TOTAL_PREG + "</strong><br>" + q.enunciado;
+  if(q.codigo) html += '<pre class="codeq">' + escapeHtml(q.codigo) + "</pre>";
+  box.innerHTML = html;
   opts.innerHTML = "";
-  document.getElementById("feedback").innerText = "";
-  if(qIndex >= problemaActual.preguntas.length){
-    document.getElementById("feedback").innerText = "Has respondido todas las preguntas del ejercicio. Ahora escribe tu código en Python y pulsa Enviar.";
+  document.getElementById("feedback").innerText = "Respondidas: " + preguntaActual + " de " + TOTAL_PREG;
+  document.getElementById("feedbackCode").innerText = "";
+  if(q.tipo === "opcion"){
+    document.getElementById("codeArea").style.display = "none";
+    q.opciones.forEach((op, i) => {
+      const b = document.createElement("button");
+      b.className = "option-btn";
+      b.innerText = String.fromCharCode(65+i) + ": " + op;
+      b.onclick = () => responderOpcion(i);
+      opts.appendChild(b);
+    });
+  }else{
     document.getElementById("codeArea").style.display = "block";
-    document.getElementById("verifyBtn").disabled = false;
+    document.getElementById("userCode").value = "";
+    document.getElementById("verifyBtn").innerText = (preguntaActual === TOTAL_PREG-1) ? "Enviar examen" : "Siguiente";
+    document.getElementById("userCode").focus();
+  }
+}
+
+function registrarRespuesta(valor){
+  const q = PREGUNTAS[preguntaActual];
+  let ok, texto;
+  if(q.tipo === "opcion"){
+    ok = (valor === q.correcta);
+    texto = String.fromCharCode(65+valor) + ": " + q.opciones[valor];
+  }else{
+    texto = String(valor);
+    ok = calificarAbierta(q, texto);
+  }
+  respuestas.push({ n: preguntaActual+1, p: q.p, tipo: q.tipo, respuesta: texto, ok: ok });
+}
+function avanzar(){
+  preguntaActual++;
+  if(preguntaActual >= TOTAL_PREG){
+    enviarIntento(MOTIVO_MANUAL);
+  }else{
+    mostrarPregunta();
+  }
+}
+function responderOpcion(i){
+  registrarRespuesta(i);
+  avanzar();
+}
+function siguiente(){
+  const txt = document.getElementById("userCode").value;
+  if(!txt.trim()){
+    document.getElementById("feedbackCode").innerText = "Escribe una respuesta antes de continuar (si no sabes, escribe \"no sé\").";
     return;
   }
-  const q = problemaActual.preguntas[qIndex];
-  box.innerHTML = `<strong>Pregunta ${qIndex+1} de ${problemaActual.preguntas.length}</strong><br>${q.enunciado}`;
-  q.opciones.forEach((op, i) => {
-    const b = document.createElement("button");
-    b.className = "option-btn";
-    b.innerText = String.fromCharCode(65+i) + ": " + op;
-    b.onclick = () => responder(i);
-    opts.appendChild(b);
-  });
-}
-
-function responder(indice){
-  const q = problemaActual.preguntas[qIndex];
-  const esCorrecta = indice === q.correcta;
-  quizResults.push(esCorrecta);
-  qIndex++;
-  mostrarPregunta();
-}
-
-function verificarCodigo(){
-  const userCode = document.getElementById("userCode").value;
-  currentUserCode = userCode || "";
-  document.getElementById("feedbackCode").innerText = "Tus respuestas han sido enviadas para revisión.";
-  enviarIntento("manual");
+  registrarRespuesta(txt);
+  avanzar();
 }
 
 function escapeHtml(s){
@@ -1190,6 +501,7 @@ function escapeHtml(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+/* ---------- Resultados ---------- */
 function cargarResultados(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1203,63 +515,94 @@ function guardarResultado(reg){
   arr.push(reg);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
 }
+function nivelPorPuntaje(p){
+  if(p >= UMBRAL_APTA) return "Avanzado";
+  if(p >= UMBRAL_APOYO) return "Intermedio";
+  return "Inicial";
+}
 
 function enviarIntento(motivo){
   if(!intentoEnCurso || intentoEnviado) return;
-  const totalPreg = quizResults.length;
-  const aciertos = quizResults.filter(x=>x).length;
-  const puntaje = totalPreg ? Math.round((aciertos/totalPreg)*100) : 0;
-  const registro = {
+
+  // Si salió a media pregunta escrita, se toma lo que alcanzó a escribir
+  if(preguntaActual < TOTAL_PREG && respuestas.length === preguntaActual){
+    const q = PREGUNTAS[preguntaActual];
+    if(q.tipo === "abierta"){
+      const txt = document.getElementById("userCode").value;
+      if(txt && txt.trim()) registrarRespuesta(txt);
+    }
+  }
+  // Lo no respondido cuenta como mala
+  for(let i = respuestas.length; i < TOTAL_PREG; i++){
+    respuestas.push({ n: i+1, p: PREGUNTAS[i].p, tipo: PREGUNTAS[i].tipo, respuesta: "(sin responder)", ok: false });
+  }
+
+  const aciertos = respuestas.filter(r => r.ok).length;
+  const puntaje = Math.round((aciertos / TOTAL_PREG) * 100);
+  const areas = {};
+  Object.keys(AREAS).forEach(k => {
+    const rs = respuestas.filter(r => r.p === k);
+    areas[k] = [rs.filter(r => r.ok).length, rs.length];
+  });
+
+  guardarResultado({
     nombre: currentUserName || "Anónimo",
     matricula: currentMatricula || "",
     grupo: currentGrupo || "",
-    nivel: nivelActual || "",
-    ejercicio: problemaActual ? problemaActual.texto : "",
+    nivel: nivelPorPuntaje(puntaje),
+    ejercicio: "Examen diagnóstico hackatón",
     puntaje: puntaje,
     aciertos: aciertos,
-    total: totalPreg,
+    total: TOTAL_PREG,
+    areas: areas,
     fecha: (new Date()).toLocaleString(),
-    codigo: currentUserCode || "",
+    respuestas: respuestas,
     motivo: motivo || ""
-  };
-  guardarResultado(registro);
+  });
+
   intentoEnviado = true;
   intentoEnCurso = false;
-  nivelActual = null;
-  problemaActual = null;
-  qIndex = 0;
+  preguntaActual = 0;
   document.getElementById("problemArea").style.display = "none";
   document.getElementById("codeArea").style.display = "none";
-  if(currentUserName && currentUserName.toLowerCase() === "sandra del valle ramírez" && currentMatricula && currentMatricula.toLowerCase() === "profesora" && currentGrupo === "0"){
-    mostrarAdminPanel();
-  }else{
-    document.getElementById("levelCards").style.display = "flex";
-    document.getElementById("infoBoxes").style.display = "flex";
-  }
+  const ex = document.getElementById("examArea");
+  ex.style.display = "block";
+  ex.innerHTML = "<h2>Examen enviado</h2>" +
+    "<p><strong>Motivo del envío:</strong> " + escapeHtml(motivo || "") + "</p>" +
+    "<p>Gracias por participar. Tu profesor revisará los resultados.</p>";
 }
 
+/* ---------- CSV ---------- */
+function areaPct(r, k){
+  const a = r.areas && r.areas[k];
+  if(!a || !a[1]) return 0;
+  return Math.round((a[0]/a[1])*100);
+}
 function exportarCSV(){
   const rows = cargarResultados();
   if(rows.length === 0){ alert("No hay resultados para exportar."); return; }
-  const encabezado = ["nombre","matricula","grupo","nivel","ejercicio","puntaje","aciertos","total","fecha","codigo","motivo"];
+  const encabezado = ["nombre","matricula","grupo","nivel","puntaje","aciertos","total","programacion_%","video_%","liderazgo_%","problema_%","fecha","motivo","respuestas"];
   const csv = [encabezado.join(",")].concat(rows.map(r=>[
     csvSafe(r.nombre),
     csvSafe(r.matricula||""),
     csvSafe(r.grupo||""),
     csvSafe(r.nivel||""),
-    csvSafe(r.ejercicio||""),
     r.puntaje||0,
     r.aciertos||0,
     r.total||0,
+    areaPct(r,"A"),
+    areaPct(r,"B"),
+    areaPct(r,"C"),
+    areaPct(r,"D"),
     csvSafe(r.fecha||""),
-    csvSafe(r.codigo||""),
-    csvSafe(r.motivo||"")
+    csvSafe(r.motivo||""),
+    csvSafe((r.respuestas||[]).map(x => x.n + (x.ok ? " [BIEN] " : " [MAL] ") + x.respuesta.replace(/\s+/g," ")).join(" | "))
   ].join(","))).join("\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const blob = new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8;"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "resultados_ps_eint_python.csv";
+  a.download = "resultados_diagnostico_hackaton.csv";
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -1270,10 +613,12 @@ function csvSafe(s){
 function limpiarResultados(){
   if(!confirm("¿Eliminar todos los resultados guardados? Esta acción es irreversible.")) return;
   localStorage.removeItem(STORAGE_KEY);
+  document.getElementById("analisisBox").innerHTML = "";
   renderResultados();
   alert("Resultados eliminados.");
 }
 
+/* ---------- Administrador ---------- */
 function abrirLoginAdmin(){
   document.getElementById("modal").style.display = "flex";
   document.getElementById("loginMsg").style.display = "none";
@@ -1284,7 +629,7 @@ function cerrarModal(){ document.getElementById("modal").style.display = "none";
 function loginAdmin(){
   const msg = document.getElementById("loginMsg");
   msg.style.display = "block";
-  msg.innerText = "El acceso al panel solo está disponible para la profesora Sandra del Valle Ramírez.";
+  msg.innerText = "El acceso al panel solo está disponible para el profesor Francisco Almaraz.";
 }
 
 function mostrarAdminPanel(){
@@ -1302,49 +647,132 @@ function renderResultados(){
   <th>Matrícula</th>
   <th>Grupo</th>
   <th>Nivel</th>
-  <th>Ejercicio</th>
   <th>Puntaje %</th>
   <th>Buenas</th>
   <th>Malas</th>
-  <th>Total Preguntas</th>
+  <th>Prog. %</th>
+  <th>Video %</th>
+  <th>Liderazgo %</th>
+  <th>Problema %</th>
   <th>Fecha</th>
-  <th>Código</th>
+  <th>Respuestas</th>
   <th>Motivo</th>
   </tr></thead><tbody>`;
-  rows.slice().reverse().forEach(r=>{
+  rows.map((r,i)=>({r:r,i:i})).reverse().forEach(o=>{
+    const r = o.r;
     const incorrectas = (r.total||0) - (r.aciertos||0);
     html += `<tr>
       <td>${escapeHtml(r.nombre||"")}</td>
       <td>${escapeHtml(r.matricula||"")}</td>
       <td>${escapeHtml(r.grupo||"")}</td>
       <td>${escapeHtml(r.nivel||"")}</td>
-      <td>${escapeHtml(r.ejercicio||"")}</td>
       <td>${r.puntaje||0}</td>
       <td>${r.aciertos||0}</td>
       <td>${incorrectas}</td>
-      <td>${r.total||0}</td>
+      <td>${areaPct(r,"A")}</td>
+      <td>${areaPct(r,"B")}</td>
+      <td>${areaPct(r,"C")}</td>
+      <td>${areaPct(r,"D")}</td>
       <td>${escapeHtml(r.fecha||"")}</td>
-      <td><button class="main-btn" onclick="verCodigo('${btoa(unescape(encodeURIComponent(r.codigo||'')))}','${escapeHtml(r.nombre||"")}')">Ver código</button></td>
+      <td><button class="main-btn" onclick="verRespuestas(${o.i})">Ver respuestas</button></td>
       <td>${escapeHtml(r.motivo||"")}</td>
     </tr>`;
   });
   html += `</tbody></table>`;
   wrap.innerHTML = html;
 }
-function verCodigo(encoded, nombre){
-  let code = "";
-  try{ code = decodeURIComponent(escape(atob(encoded))); }catch(e){ code = "(código no disponible)"; }
-  alert("Código enviado por " + nombre + ":\n\n" + code);
-}
 
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
+function verRespuestas(idx){
+  const r = cargarResultados()[idx];
+  if(!r) return;
+  document.getElementById("respTitulo").innerText = "Respuestas de " + (r.nombre||"");
+  let html = "<div class='hint'>Puntaje: " + (r.puntaje||0) + "% · " + escapeHtml(r.motivo||"") + "</div>";
+  (r.respuestas||[]).forEach(x => {
+    const q = PREGUNTAS[x.n-1];
+    const enun = q ? q.enunciado.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim() : "";
+    html += "<div style='margin-top:10px;border-top:1px solid #eee;padding-top:8px'>" +
+      "<strong>" + x.n + ".</strong> " + escapeHtml(enun) +
+      "<div style='margin-top:4px'>" + (x.ok ? "✅ Bien" : "❌ Mal") + "</div>" +
+      "<pre class='codeq'>" + escapeHtml(x.respuesta) + "</pre></div>";
+  });
+  document.getElementById("respCuerpo").innerHTML = html;
+  document.getElementById("modalResp").style.display = "flex";
+}
+function cerrarResp(){ document.getElementById("modalResp").style.display = "none"; }
+
+/* ---------- Análisis para hackatón ---------- */
+function mejoresPorMatricula(rows){
+  const mapa = {};
+  rows.forEach(r => {
+    const k = (r.matricula||"").toLowerCase() + "|" + (r.nombre||"").toLowerCase();
+    if(!mapa[k] || (r.puntaje||0) > (mapa[k].puntaje||0)) mapa[k] = r;
+  });
+  return Object.keys(mapa).map(k => mapa[k]);
+}
+function rolSugerido(r){
+  const orden = [["A","Programadora"],["C","Líder de equipo"],["B","Diseño y video"],["D","Investigación y pruebas"]];
+  let mejor = orden[0], max = -1;
+  orden.forEach(o => { const p = areaPct(r, o[0]); if(p > max){ max = p; mejor = o; } });
+  return mejor[1];
+}
+function analizarHackaton(){
+  const box = document.getElementById("analisisBox");
+  const todos = cargarResultados();
+  const rows = mejoresPorMatricula(todos).sort((a,b)=>(b.puntaje||0)-(a.puntaje||0));
+  if(rows.length === 0){ box.innerHTML = "<div class='hint'>Todavía no hay resultados para analizar.</div>"; return; }
+
+  const aptas = rows.filter(r => r.puntaje >= UMBRAL_APTA);
+  const apoyo = rows.filter(r => r.puntaje >= UMBRAL_APOYO && r.puntaje < UMBRAL_APTA);
+  const formacion = rows.filter(r => r.puntaje < UMBRAL_APOYO);
+  const automaticos = rows.filter(r => (r.motivo||"").indexOf("automático") !== -1).length;
+  const promedio = Math.round(rows.reduce((s,r)=>s+(r.puntaje||0),0)/rows.length);
+
+  const pool = aptas.concat(apoyo);
+  const nEq = Math.floor(pool.length/4);
+  const nEqAptas = Math.floor(aptas.length/4);
+
+  let html = "<h3>Análisis para hackatón</h3>";
+  html += "<div class='kpis'>" +
+    "<div class='kpi'><b>" + rows.length + "</b>alumnas evaluadas</div>" +
+    "<div class='kpi'><b>" + aptas.length + "</b>aptas (≥ " + UMBRAL_APTA + "%) · Plan A</div>" +
+    "<div class='kpi'><b>" + apoyo.length + "</b>con apoyo (" + UMBRAL_APOYO + "–" + (UMBRAL_APTA-1) + "%)</div>" +
+    "<div class='kpi'><b>" + formacion.length + "</b>en formación (&lt; " + UMBRAL_APOYO + "%) · Plan B</div>" +
+    "<div class='kpi'><b>" + promedio + "%</b>promedio general</div>" +
+    "<div class='kpi'><b>" + automaticos + "</b>envíos automáticos</div>" +
+    "</div>";
+  html += "<div class='hint'>Con equipos de 4 personas: " + nEqAptas + " equipo(s) solo con aptas, y " + nEq + " equipo(s) sumando aptas y con apoyo (" + pool.length + " alumnas disponibles para trabajar).</div>";
+
+  html += "<h4>Alumnas aptas para hackatón</h4>";
+  if(aptas.length){
+    html += "<div class='tablewrap'><table><thead><tr><th>Nombre</th><th>Matrícula</th><th>Grupo</th><th>Puntaje %</th><th>Rol sugerido</th></tr></thead><tbody>";
+    aptas.forEach(r => {
+      html += "<tr><td>" + escapeHtml(r.nombre||"") + "</td><td>" + escapeHtml(r.matricula||"") + "</td><td>" + escapeHtml(r.grupo||"") + "</td><td>" + (r.puntaje||0) + "</td><td>" + rolSugerido(r) + "</td></tr>";
+    });
+    html += "</tbody></table></div>";
+  }else{
+    html += "<div class='hint'>Ninguna alumna alcanzó todavía el puntaje de aptas.</div>";
   }
-  return arr;
+
+  html += "<h4>Equipos sugeridos (aptas y con apoyo, equilibrados por puntaje)</h4>";
+  if(nEq >= 1){
+    const equipos = Array.from({length:nEq}, () => []);
+    pool.forEach((r,i) => {
+      const ciclo = Math.floor(i/nEq), pos = i % nEq;
+      const idx = (ciclo % 2 === 0) ? pos : (nEq-1-pos);
+      equipos[idx].push(r);
+    });
+    equipos.forEach((eq,i) => {
+      html += "<div class='hint'><strong>Equipo " + (i+1) + "</strong>\n" +
+        eq.map(r => "• " + escapeHtml(r.nombre||"") + " (" + (r.puntaje||0) + "%, " + rolSugerido(r) + ")").join("\n") + "</div>";
+    });
+  }else{
+    html += "<div class='hint'>Faltan " + (4-pool.length) + " alumna(s) para formar un equipo de 4.</div>";
+  }
+  html += "<h4>Todos los resultados</h4>";
+  box.innerHTML = html;
 }
 
+/* ---------- Eventos ---------- */
 window.addEventListener("load", () => {
   const cloud = document.getElementById("masteshCloud");
   if(cloud){
@@ -1357,11 +785,11 @@ window.addEventListener("load", () => {
 
 document.addEventListener("visibilitychange", () => {
   if(document.hidden){
-    enviarIntento("cambio_de_ventana");
+    enviarIntento(MOTIVO_VENTANA);
   }
 });
 window.addEventListener("blur", () => {
-  enviarIntento("cambio_de_ventana");
+  enviarIntento(MOTIVO_VENTANA);
 });
 
 document.addEventListener("copy", e=>{e.preventDefault();});
